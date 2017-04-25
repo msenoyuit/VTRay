@@ -3,17 +3,10 @@
 #include <list>
 #include <cmath>
 
-struct color {
-	int r;
-	int g;
-	int b;
-	color(int rIn, int gIn, int bIn) {
-		r = rIn;
-		g = gIn;
-		b = bIn;
-	};
 
-};
+
+
+
 
 struct vec {
 	double x;
@@ -23,30 +16,73 @@ struct vec {
 		x = xIn;
 		y = yIn;
 		z = zIn;
-	};
-	vec const normal() {
+	}
+	const vec normal() const {
 		double length = sqrt(x*x + y*y + z*z);
 		return vec(x / length, y / length, z / length);
 	}
-
-	double const dotProduct(const vec & vecIn)
+	vec& operator=(const vec& src)
 	{
-		return x*vecIn.x + y*vecIn.y + z*vecIn.z;
+		x = src.x;
+		y = src.y;
+		z = src.z;
+	}
+
+};
+
+struct camera
+{
+	vec center = vec(0, 0, 0);
+	vec normal = vec(0, 0, 0);
+	vec focPoint = vec(0, 0, 0);
+	double focus = 0;
+	double resX = 0;
+	double resY = 0;
+	int sizeX = 0;
+	int sizeY = 0;
+	camera(vec * cenIn, vec * normIn, double focIn, double rXIn, double rYIn, int sXIn, int sYIn)
+	{
+		center = vec(cenIn->x, cenIn->y, cenIn->z);
+		normal = vec(normIn->x, normIn->y, normIn->z);
+		focus = focIn;
+		resX = rXIn;
+		resY = rYIn;
+		sizeX = sXIn;
+		sizeY = sYIn;
+		vec norm = normal.normal();
+		focPoint = vec(center.x - norm.x*focus, center.y - norm.y*focus, center.z - norm.z*focus);
+	}
+
+};
+
+struct colorStruct {
+	int r;
+	int g;
+	int b;
+	colorStruct(int rIn, int gIn, int bIn) {
+		r = rIn;
+		g = gIn;
+		b = bIn;
 	};
 
 };
 
 struct ray {
-	vec origin;
-	vec direction;
-	ray(vec oIn, vec dirIn): origin(oIn), direction(dirIn){};
+	vec origin = vec(0, 0, 0);
+	vec direction = vec(0, 0, 0);
+	ray(vec * oIn, vec * dirIn) {
+		origin = vec(oIn->x, oIn->y, oIn->z);
+		direction = dirIn->normal();
+	};
 };
 
 struct light
 {
-	vec location;
+	vec location = vec(0,0,0);
 	double intensity;
-	light(vec locIn, double intenIn): location(locIn) {
+	light(vec * locIn, double intenIn) 
+	{
+		location = vec(locIn->x, locIn->y, locIn->z);
 		intensity = intenIn;
 	};
 
@@ -61,8 +97,21 @@ class objects
 public:
 	objects() {};
 	~objects() {};
-	virtual const color intersect(const std::list<objects*> actors, const std::list<light> lights, const ray traceRay){};
-	virtual const vec getCenter(){};
+	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist){};
+	virtual const double intersectTrue(const ray traceRay) {};
+	virtual vec* getCenter(){};
+	const double dot(const vec * vecA, const vec * vecB) const
+	{
+		return (vecA->x*vecB->x + vecA->y*vecB->y + vecA->z*vecB->z);
+	}
+
+	const double distance(const vec * vecA, const vec * vecB) const
+	{
+		double x = vecA->x - vecB->x;
+		double y = vecA->y - vecB->y;
+		double z = vecA->z - vecB->z;
+		return sqrt(x*x + y*y + z*z);
+	}
 	 
 private:
 

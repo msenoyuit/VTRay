@@ -13,7 +13,7 @@ find_package(Qt5 COMPONENTS Gui REQUIRED)
 
 # EDIT: add your (non-test) source files to this list
 set(src
-  camera.hpp	camera.cpp
+  sceneObj.hpp	sceneObj.cpp
   objects.hpp	
   plane.hpp 	plane.cpp
   sphere.hpp	sphere.cpp
