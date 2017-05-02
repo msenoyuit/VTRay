@@ -26,6 +26,7 @@ struct vec {
 		x = src.x;
 		y = src.y;
 		z = src.z;
+		return *this;
 	}
 
 };
@@ -97,9 +98,9 @@ class objects
 public:
 	objects() {};
 	~objects() {};
-	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen){};
-	virtual const double intersectTrue(const ray traceRay) {};
-	virtual vec* getCenter(){};
+	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen) = 0;
+	virtual const double intersectTrue(const ray traceRay)  = 0;
+	virtual vec* getCenter() = 0;
 	const double dot(const vec * vecA, const vec * vecB) const
 	{
 		return (vecA->x*vecB->x + vecA->y*vecB->y + vecA->z*vecB->z);

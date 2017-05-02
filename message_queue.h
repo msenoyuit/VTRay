@@ -32,7 +32,7 @@ class message_queue
     std::lock_guard<std::mutex> lock(the_mutex);
     if(the_queue.empty())
       {
-	return false;
+		return the_queue.empty();
       }
         
     popped_value=the_queue.front();

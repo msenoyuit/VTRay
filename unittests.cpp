@@ -7,6 +7,7 @@
 #include "sphere.hpp"
 #include "sceneObj.hpp"
 #include "plane.hpp"
+#include "threads.hpp"
 
 
 TEST_CASE( "Test colorStruct struct ", "[objects], [colorStruct]" ) {
@@ -318,5 +319,67 @@ TEST_CASE("Test sphere class intersect", "[sphere], [intersect]") {
 	delete colorA;
 	delete colorB;
 
+
+}
+
+
+TEST_CASE("Test threads", "[threads]") {
+
+	// intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist)
+	//WorkBase::WorkBase(std::vector<std::vector<ray*>> * pic, std::list<objects*> * act, std::list<light*> * lig, plane * scr, int rowIn, int widthIn)
+
+	std::vector<std::vector<ray*>> pic;
+	std::vector<ray*> line;
+	pic.push_back(line);
+	vec center1 = vec(0, 0, 0);
+	vec normal1 = vec(1, 0, 0);
+
+	vec center2 = vec(2, 0, 0);
+	vec normal2 = vec(1, 0, 0);
+
+	vec center3 = vec(100, 0, 0);
+	vec normal3 = vec(1, 0, 0);
+
+	vec startRay1 = vec(1, 0, 0);
+	vec startRay2 = vec(3, 0, 0);
+
+	vec directRay1 = vec(-1, 0, 0);
+	vec directRay2 = vec(-1, 0, 0);
+
+	colorStruct col = colorStruct(100, 0, 255);
+	double lambert = .5;
+	plane plane1 = plane(&center1, &normal1, &col, lambert);
+	plane plane2 = plane(&center2, &normal2, &col, lambert);
+	plane plane3 = plane(&center3, &normal3, &col, lambert);
+
+	ray castRay = ray(&startRay1, &directRay2);
+	ray castRay2 = ray(&startRay2, &directRay2);
+	(pic)[0].push_back(&castRay);
+	(pic)[0].push_back(&castRay2);
+
+	light l1 = light(5, 0, 0, 1);
+	std::list<light*> lights;
+	lights.push_back(&l1);
+
+	std::list<objects*> actors;
+	actors.push_back(&plane1);
+	actors.push_back(&plane2);
+
+
+	WorkBase work = WorkBase(&pic, &actors, &lights, &plane3, 0, 2);
+
+
+	MessageQueue inq, outq;
+	ThreadPool P(1, &inq, &outq);
+
+	inq.push(&work);
+	inq.push(nullptr);
+	P.joinAll();
+
+	WorkBase * result;
+	outq.wait_and_pop(result);
+	REQUIRE(result->getMaxColor() == 0.0);
+	REQUIRE(result->getRow() == 0);
+	REQUIRE(result->getRowColors()->size() == 2);
 
 }
