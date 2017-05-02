@@ -60,11 +60,10 @@ int main(int argc, char *argv[])
 	int sizeX = stage->getCam()->sizeX;
 	int sizeY = stage->getCam()->sizeY;
 	std::vector< std::vector<ray*> > picture(sizeY);
-	const camera * cam = stage->getCam();
-	vec center = cam->center;
+	vec center = stage->getCam()->center;
 	std::list<objects*> actors = stage->getActors();
 	std::list<light*> lights = stage->getLight();
-	vec normal = cam->normal;
+	vec normal = stage->getCam()->normal;
 	colorStruct blank = colorStruct(0, 0, 0);
 	plane screen = plane(&center, &normal, &blank, .5);
 	QImage image = QImage(sizeX, sizeY, QImage::Format_RGB888);
