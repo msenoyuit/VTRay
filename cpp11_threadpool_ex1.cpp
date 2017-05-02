@@ -1,3 +1,5 @@
+#ifndef THREADPOOL_HEADER
+#define THREADPOOL_HEADER
 // a thread pool using polymorphism and a thread-safe queue
 // there are some pretty big design issues with this code
 // what are they?
@@ -10,13 +12,91 @@
 #include <string>
 
 #include "message_queue.h"
+#include "objects.hpp"
+#include "plane.hpp"
 
 // define a base class to encapsulate a unit of work
 class WorkBase
 {
 public:
-  virtual void run() = 0;  
+	WorkBase(std::vector< std::vector<ray*> > pic, std::list<objects*> act, std::list<light*> lig, plane * scr, int rowIn, int widthIn);
+	void run();  
+
+private:
+	std::vector< std::vector<ray*> > picture;
+	std::list<objects*> actors;
+	std::list<light*> lights;
+	plane * screen = 0;
+	int maxValue = -1;
+	std::vector<colorStruct*> rowColors;
+	int	row = -1;
+	int width = -1;
 };
+
+WorkBase::WorkBase(std::vector<std::vector<ray*>> pic, std::list<objects*> act, std::list<light*> lig, plane * scr, int rowIn, int widthIn)
+{
+	picture = pic;
+	actors = act;
+	lights = lig;
+	screen = scr;
+	row = rowIn;
+	width = widthIn;
+}
+
+void WorkBase::run()
+{
+	colorStruct * colorFromActor;
+	double dist = -1;
+	double minDist = -1;
+	for(int x = 0; x  < width; x ++)
+	{
+		ray * castRay = picture[row][x];
+		objects * actor = 0;
+		minDist = -1;
+		for (auto const& obj : actors) {
+			dist = obj->intersectTrue(*castRay);
+			//std::cout << dist << ' ' << minDist << '\n';
+			if (dist < 0 || (minDist > 0 && minDist < dist))
+			{
+				continue;
+			}
+			else
+			{
+				actor = obj;
+				minDist = dist;
+			}
+		}
+		if (minDist > 0)
+		{
+			//std::cout << "after108\n"; 
+			//std::cout << actor->getCenter()->x << '\n';
+			//std::cout << i << " " << j << '\n';
+	
+			colorFromActor = actor->intersect(actors, lights, *castRay, minDist, screen);
+			//std::cout << "after110\n";
+			if (colorFromActor->r > maxValue)
+			{
+				maxValue = colorFromActor->r;
+			}
+			if (colorFromActor->g > maxValue)
+			{
+				maxValue = colorFromActor->g;
+			}
+			if (colorFromActor->b > maxValue)
+			{
+				maxValue = colorFromActor->b;
+			}
+			rowColors.push_back(colorFromActor);
+		}
+		else
+		{
+			rowColors.push_back(new colorStruct(0, 0, 0));
+		}
+	}
+}
+
+
+
 
 // make the message a WorkBase pointer
 typedef WorkBase * MessageType;
@@ -61,39 +141,8 @@ private:
 
   std::vector<std::thread> pool;
 };
-  
-// now create a couple of work units
-class Work1: public WorkBase
-{
-public:
-  void run(){
-    result = "This is the result of Work 1";
-  }
 
-  std::string get(){
-    return result;
-  }
-  
-private:
-  std::string result;
-};
-
-class Work2: public WorkBase
-{
-public:
-  void run(){
-    result = 42;
-  }
-
-  int get(){
-    return result;
-  }
-  
-private:
-
-  int result;
-};
-
+/*
   
 int main()
 {
@@ -133,3 +182,6 @@ int main()
   
   return 0;
 }
+*/
+
+#endif

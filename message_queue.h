@@ -1,3 +1,5 @@
+#ifndef MESSAGEQUEUE_HEADER
+#define MESSAGEQUEUE_HEADER
 /* Adapted from
 www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queue-using-condition-variables.html
 */
@@ -56,3 +58,5 @@ class message_queue
   std::condition_variable the_condition_variable;
 
 };
+
+#endif
