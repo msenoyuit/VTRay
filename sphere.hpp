@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <iostream>
 #include "objects.hpp"
+#include "plane.hpp"
 
 
 class sphere : public objects
@@ -11,7 +12,7 @@ class sphere : public objects
 public:
 	sphere(vec * cenIn, double radIn, colorStruct * colIn, double lamIn);
 	~sphere();
-	colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist);
+	colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen);
 	const double intersectTrue(const ray traceRay);
 	vec * getCenter();
 

@@ -20,7 +20,6 @@ class scene
 public:
 	scene(std::string fileLocation);
 	~scene();
-	void debug();
 	std::list<light*> getLight();
 	std::list<objects*> getActors();
 	const camera * getCam();

@@ -10,7 +10,7 @@ class plane : public objects
 public:
 	plane(vec * cenIn, vec * normIn, colorStruct * colIn, double lamIn);
 	~plane();
-	colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist);
+	colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen);
 	const double intersectTrue(const ray traceRay);
 	vec* getCenter();
 

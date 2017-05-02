@@ -97,7 +97,7 @@ class objects
 public:
 	objects() {};
 	~objects() {};
-	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist){};
+	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen){};
 	virtual const double intersectTrue(const ray traceRay) {};
 	virtual vec* getCenter(){};
 	const double dot(const vec * vecA, const vec * vecB) const

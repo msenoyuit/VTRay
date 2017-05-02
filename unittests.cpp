@@ -157,13 +157,15 @@ TEST_CASE("Test sphere class intersectTrue", "[sphere], [intersectTrue]") {
 
 TEST_CASE("Test sceneObj class ", "[scene]") {
 
-	scene sceneObj1 = scene("../tests/scene1.json");
-	REQUIRE_THROWS(scene("../tests/scene3.json"));
-	REQUIRE_THROWS(scene("../tests/scene4.json"));
-	REQUIRE_THROWS(scene("../sceneNegLight.json"));
+	REQUIRE_THROWS(scene("/vagrant/tests/sce.json"));
+	REQUIRE_THROWS(scene("/vagrant/tests/scene3.json"));
+	REQUIRE_THROWS(scene("/vagrant/tests/scene4.json"));
+	REQUIRE_THROWS(scene("/vagrant/sceneNegLight.json"));
+	scene sceneObj1 = scene("/vagrant/tests/scene1.json");
 
 	std::list<light*> lighting = sceneObj1.getLight();
 	std::list<objects*> actors = sceneObj1.getActors();
+	const camera * cam = sceneObj1.getCam();
 
 
 	REQUIRE(lighting.front()->intensity == 1);
@@ -179,6 +181,9 @@ TEST_CASE("Test sceneObj class ", "[scene]") {
 	REQUIRE(actors.back()->getCenter()->y == 5);
 	REQUIRE(actors.back()->getCenter()->z == 0);
 
+	REQUIRE(cam->center.x == 0);
+	REQUIRE(cam->focus == 10);
+	REQUIRE(cam->normal.z == 1);
 }
 
 TEST_CASE("Test plane class intersectTrue", "[plane], [intersectTrue]") {
@@ -218,6 +223,9 @@ TEST_CASE("Test plane class intersect", "[plane], [intersect]") {
 	vec center2 = vec(2, 0, 0);
 	vec normal2 = vec(1, 0, 0);
 
+	vec center3 = vec(100, 0, 0);
+	vec normal3 = vec(1, 0, 0);
+
 	vec startRay1 = vec(1, 0, 0);
 	vec startRay2 = vec(3, 0, 0);
 
@@ -228,6 +236,7 @@ TEST_CASE("Test plane class intersect", "[plane], [intersect]") {
 	double lambert = .5;
 	plane plane1 = plane(&center1, &normal1, &col, lambert);
 	plane plane2 = plane(&center2, &normal2, &col, lambert);
+	plane plane3 = plane(&center3, &normal3, &col, lambert);
 
 	ray castRay = ray(&startRay1, &directRay2);
 	ray castRay2 = ray(&startRay2, &directRay2);
@@ -243,8 +252,8 @@ TEST_CASE("Test plane class intersect", "[plane], [intersect]") {
 
 
 
-	colorStruct * colorA = plane1.intersect(actors, lights, castRay, plane1.intersectTrue(castRay));
-	colorStruct * colorB = plane2.intersect(actors, lights, castRay2, plane1.intersectTrue(castRay2));
+	colorStruct * colorA = plane1.intersect(actors, lights, castRay, plane1.intersectTrue(castRay), &plane3);
+	colorStruct * colorB = plane2.intersect(actors, lights, castRay2, plane1.intersectTrue(castRay2), &plane3);
 	REQUIRE(colorA->r == 0);
 	REQUIRE(colorB->r == 0);
 
@@ -253,6 +262,8 @@ TEST_CASE("Test plane class intersect", "[plane], [intersect]") {
 
 	REQUIRE(colorA->b == 0);
 	REQUIRE(colorB->b == 0);
+	delete colorA;
+	delete colorB;
 	
 }
 
@@ -270,10 +281,15 @@ TEST_CASE("Test sphere class intersect", "[sphere], [intersect]") {
 	vec directRay1 = vec(-1, 0, 0);
 	vec directRay2 = vec(-1, 0, 0);
 
+	vec center3 = vec(100, 0, 0);
+	vec normal3 = vec(1, 0, 0);
+
+
 	colorStruct col = colorStruct(100, 0, 255);
 	double lambert = .5;
 	sphere sphere1 = sphere(&center1, raid, &col, lambert);
 	sphere sphere2 = sphere(&center2, raid, &col, lambert);
+	plane plane3 = plane(&center3, &normal3, &col, lambert);
 
 	ray castRay = ray(&startRay1, &directRay2);
 	ray castRay2 = ray(&startRay2, &directRay2);
@@ -289,8 +305,8 @@ TEST_CASE("Test sphere class intersect", "[sphere], [intersect]") {
 
 
 
-	colorStruct * colorA = sphere1.intersect(actors, lights, castRay, sphere1.intersectTrue(castRay));
-	colorStruct * colorB = sphere2.intersect(actors, lights, castRay2, sphere2.intersectTrue(castRay2));
+	colorStruct * colorA = sphere1.intersect(actors, lights, castRay, sphere1.intersectTrue(castRay), &plane3);
+	colorStruct * colorB = sphere2.intersect(actors, lights, castRay2, sphere2.intersectTrue(castRay2), &plane3);
 	REQUIRE(colorA->r == 0);
 	REQUIRE(colorB->r == 50);
 
@@ -299,5 +315,8 @@ TEST_CASE("Test sphere class intersect", "[sphere], [intersect]") {
 
 	REQUIRE(colorA->b == 0);
 	REQUIRE(colorB->b == int(255 * lambert));
+	delete colorA;
+	delete colorB;
+
 
 }

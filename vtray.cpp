@@ -7,10 +7,14 @@
 #include <QImage>
 #include <QString>
 #include <QColor>
+#include <ctime>
 
 
 int main(int argc, char *argv[])
 {
+	std::clock_t start;
+	double duration;
+	start = std::clock();
 
 	std::vector<std::string>  arguments;
 	std::string jsonFileName;
@@ -69,9 +73,13 @@ int main(int argc, char *argv[])
 	const double resX = stage->getCam()->resX;
 	const double resY = stage->getCam()->resY;
 	//std::cout << resX << '\n';
-	vec center = stage->getCam()->center;
+	const camera * cam = stage->getCam();
+	vec center = cam->center;
 	std::list<objects*> actors = stage->getActors();
 	std::list<light*> lights = stage->getLight();
+	vec normal = cam->normal;
+	colorStruct blank = colorStruct(0, 0, 0);
+	plane screen = plane(&center, &normal, &blank, .5);
 	QImage image = QImage(sizeX, sizeY, QImage::Format_RGB888);
 	std::list<colorStruct *> colors;
 	int maxValue = -1;
@@ -108,7 +116,7 @@ int main(int argc, char *argv[])
 				//std::cout << actor->getCenter()->x << '\n';
 				//std::cout << i << " " << j << '\n';
 				
-				colorFromActor = actor->intersect(actors, lights, castRay, minDist);
+				colorFromActor = actor->intersect(actors, lights, castRay, minDist, &screen);
 				//std::cout << "after110\n";
 				if (colorFromActor->r > maxValue)
 				{
@@ -135,9 +143,9 @@ int main(int argc, char *argv[])
 	int g;
 	int b;
 	double expose = 255.0 / double(maxValue);
-	std::cout << maxValue << '\n';
-	std::cout << expose << '\n';
-	std::cout << 255.0/183.0 << '\n';
+	//std::cout << maxValue << '\n';
+	//std::cout << expose << '\n';
+	//std::cout << 255.0/183.0 << '\n';
 	for (int i = 0; i < sizeX; i++)
 	{
 		for (int j = 0; j < sizeY; j++)
@@ -151,5 +159,7 @@ int main(int argc, char *argv[])
 
 	image.save(QString::fromStdString(pngFileName), "PNG");
 	delete stage;
+	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+	std::cout << "printf: " << duration << '\n';
 	return EXIT_SUCCESS;
 }

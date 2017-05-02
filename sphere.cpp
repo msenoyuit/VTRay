@@ -14,7 +14,7 @@ sphere::~sphere()
 	delete center;
 }
 
-colorStruct * sphere::intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist)
+colorStruct * sphere::intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen)
 {
 	double objDist;
 	colorStruct * pointColor = new colorStruct(0, 0, 0);
@@ -28,12 +28,13 @@ colorStruct * sphere::intersect(const std::list<objects*> actors, const std::lis
 		double distLight = distance(&pointIntersect, &(i->location));
 		vec shadDir = vec(i->location.x - pointIntersect.x, i->location.y - pointIntersect.y, i->location.z - pointIntersect.z);
 		const ray shadRay = ray(&pointIntersect, &shadDir);
+		double screenDist = screen->intersectTrue(shadRay);
 		clearPath = true;
 		for (auto const& j : actors) {
 			if (distance(center, j->getCenter()) > 1e-3)
 			{
 				objDist = j->intersectTrue(shadRay);
-				if (objDist > 1e-3 && objDist < distLight)
+				if (objDist > 1e-3 && objDist < distLight && objDist < screenDist)
 				{
 					clearPath = false;
 					break;

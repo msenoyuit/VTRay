@@ -41,48 +41,6 @@ scene::~scene()
 	delete stage;
 }
 
-void scene::debug()
-{
-	std::cout << "DEBUG FUNCTION" << '\n';
-	std::cout << jObj.count() << '\n';
-	QString list = jObj.keys().join(" : ");
-	std::cout << "Key List - " << list.toStdString() << '\n';
-	QJsonObject cam = jObj["camera"].toObject();
-	QJsonArray camRes = cam["resolution"].toArray();
-	std::cout << "Camera - " << camRes[0].toDouble() << " - " << camRes[1].toDouble() << '\n';
-	QJsonArray camSize = cam["size"].toArray();
-	std::cout << "Size - " << camSize[0].toDouble() << " - " << camSize[1].toDouble() << '\n';
-	QJsonArray lightArray = jObj["lights"].toArray();
-	/*
-	std::cout << "light count - " << lightArray.size() << '\n';
-	int numLights = lighting.size();
-	for (int i = 0; i < numLights; i++)
-	{
-		std::cout << "Lighting intensity - " << lighting.front()->intensity << '\n';
-		std::cout << "Lighting Location - " << lighting.front()->location.x << " " << lighting.front()->location.y << " " << lighting.front()->location.z << " " << '\n';
-		lighting.pop_front();
-	}
-	
-
-	QJsonArray actorArray = jObj["objects"].toArray();
-	std::cout << "actor count - " << actorArray.size() << '\n';
-	int numActors = actorArray.size();
-	for (int i = 0; i < numActors; i++)
-	{
-		QJsonObject actor = actorArray[i].toObject();
-		if (actor["type"].toString().compare("sphere") != 0)
-		{
-			std::cout << "sphere" << '\n';
-		}
-		else if (actor["type"].toString().compare("plane") != 0)
-		{
-			std::cout << "plane" << '\n';
-		}
-	}
-
-	*/
-}
-
 std::list<light*> scene::getLight()
 {
 	return lighting;
