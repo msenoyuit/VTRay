@@ -17,6 +17,8 @@ set(src
   objects.hpp	
   plane.hpp 	plane.cpp
   sphere.hpp	sphere.cpp
+  message_queue.h
+  cpp11_threadpool_ex1.cpp
   )
 
 # EDIT: add any additional test source files to this list

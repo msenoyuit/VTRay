@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 
 	const int sizeX = stage->getCam()->sizeX;
 	const int sizeY = stage->getCam()->sizeY;
+	std::vector< std::vector<ray*> > picture(sizeY);
 	const double resX = stage->getCam()->resX;
 	const double resY = stage->getCam()->resY;
 	//std::cout << resX << '\n';
@@ -79,26 +80,28 @@ int main(int argc, char *argv[])
 	std::list<light*> lights = stage->getLight();
 	vec normal = cam->normal;
 	colorStruct blank = colorStruct(0, 0, 0);
-	plane screen = plane(&center, &normal, &blank, .5);
+	plane screen = plane(&center, &normal, &blank, .5);//*********************
 	QImage image = QImage(sizeX, sizeY, QImage::Format_RGB888);
-	std::list<colorStruct *> colors;
+	std::vector< std::vector<colorStruct*> > colors(sizeY);
 	int maxValue = -1;
 	double dist = -1;
 	double minDist = -1;
 	colorStruct * colorFromActor;
-	for (int i = 0; i < sizeX; i++)
+	
+	for (int j = 0; j < sizeY; j++)
 	{
-		for (int j = 0; j < sizeY; j++)
+		for (int i = 0; i < sizeX; i++)
 		{
 			vec startPoint = stage->getCam()->focPoint;
 			vec screenPoint = vec(center.x + (i - sizeX/2) * resX, center.y + (j - sizeY / 2) * resY, center.z);
 			vec direct = vec(screenPoint.x - startPoint.x, screenPoint.y - startPoint.y, screenPoint.z - startPoint.z).normal();
-			ray castRay = ray(&startPoint, &direct);
+			ray * castRay = new ray(&startPoint, &direct);
 			//std::cout << castRay.direction.x << ' ' << castRay.direction.y << ' '<< castRay.direction.z << '\n';
+			picture[j].push_back(castRay);
 			objects * actor = 0;
 			minDist = -1;
 			for (auto const& obj : actors) {
-				dist = obj->intersectTrue(castRay);
+				dist = obj->intersectTrue(*castRay);
 				//std::cout << dist << ' ' << minDist << '\n';
 				if (dist < 0 || (minDist > 0 && minDist < dist))
 				{
@@ -116,7 +119,7 @@ int main(int argc, char *argv[])
 				//std::cout << actor->getCenter()->x << '\n';
 				//std::cout << i << " " << j << '\n';
 				
-				colorFromActor = actor->intersect(actors, lights, castRay, minDist, &screen);
+				colorFromActor = actor->intersect(actors, lights, *castRay, minDist, &screen);
 				//std::cout << "after110\n";
 				if (colorFromActor->r > maxValue)
 				{
@@ -130,11 +133,11 @@ int main(int argc, char *argv[])
 				{
 					maxValue = colorFromActor->b;
 				}
-				colors.push_back(colorFromActor);
+				colors[j].push_back(colorFromActor);
 			}
 			else
 			{
-				colors.push_back(new colorStruct(0,0,0));
+				colors[j].push_back(new colorStruct(0,0,0));
 			}
 
 		}
@@ -146,20 +149,33 @@ int main(int argc, char *argv[])
 	//std::cout << maxValue << '\n';
 	//std::cout << expose << '\n';
 	//std::cout << 255.0/183.0 << '\n';
-	for (int i = 0; i < sizeX; i++)
+	std::cout << picture.size() << '\n';
+	std::cout << picture[0].size() << '\n';
+	for (int j = 0; j < sizeY; j++)
 	{
-		for (int j = 0; j < sizeY; j++)
+		
+		for (int i = 0; i < sizeX; i++)
 		{
-			
-			QColor col = QColor(int(colors.front()->r * expose), int(colors.front()->g  * expose), int(colors.front()->b  * expose));
+			colorStruct * pixelCol = colors[j][i];
+			QColor col = QColor(int(pixelCol->r * expose), int(pixelCol->g  * expose), int(pixelCol->b  * expose));
 			image.setPixel(i, j, col.rgb());
-			colors.pop_front();
+			delete pixelCol;
+			colors[j][i] = 0;
 		}
 	}
 
 	image.save(QString::fromStdString(pngFileName), "PNG");
 	delete stage;
+	for (int j = 0; j < sizeY; j++)
+	{
+		for (int i = 0; i < sizeX; i++)
+		{
+			delete picture[j][i];
+		}
+	}
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "printf: " << duration << '\n';
+
+	
 	return EXIT_SUCCESS;
 }
