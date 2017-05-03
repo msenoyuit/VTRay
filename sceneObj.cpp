@@ -17,6 +17,7 @@ scene::scene(std::string fileLocation)
 		QJsonDocument json = QJsonDocument::fromJson(jsonRaw, err);
 		if (err->error != 0 || json.isNull())
 		{
+			delete err;
 			throw std::invalid_argument("Error:Parse Failed");
 		}
 		else
@@ -26,7 +27,7 @@ scene::scene(std::string fileLocation)
 			addActors();
 			addCamera();
 		}
-
+		delete err;
 
 	}
 	
@@ -35,9 +36,21 @@ scene::scene(std::string fileLocation)
 
 scene::~scene()
 {
+	std::cout << "scene dest\n";
+	//while (!lighting.empty()) delete lighting.front(), lighting.pop_front();
+	//while (!actorList.empty()) delete actorList.front(), actorList.pop_front();
 
-	while (!lighting.empty()) delete lighting.front(), lighting.pop_front();
-	while (!actorList.empty()) delete actorList.front(), actorList.pop_front();
+	for (auto&& lig : lighting)
+	{
+		delete lig;
+	}
+	lighting.clear();
+	for (auto&& act : actorList)
+	{
+		delete act;
+	}
+	actorList.clear();
+
 	delete stage;
 }
 

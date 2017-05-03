@@ -14,6 +14,7 @@
 
 int main(int argc, char *argv[])
 {
+	std::cout << "begin\n";
 	std::vector<std::string>  arguments;
 	std::string jsonFileName;
 	std::string pngFileName;
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Error:invalid arguments\n");
 		return EXIT_FAILURE;
 	}
-
+	std::cout << "make stage\n";
 	scene * stage;
 	try
 	{
@@ -55,8 +56,10 @@ int main(int argc, char *argv[])
 	{
 		fprintf(stderr, "%s", ex.what());
 		fprintf(stderr, "%s", "\n");
+		delete stage;
 		return EXIT_FAILURE;
 	}
+	std::cout << "ini values\n";
 	int sizeX = stage->getCam()->sizeX;
 	int sizeY = stage->getCam()->sizeY;
 	std::vector< std::vector<ray*> > picture(sizeY);
@@ -70,6 +73,7 @@ int main(int argc, char *argv[])
 	std::vector< std::vector<colorStruct*> > colors(sizeY);
 	int maxValue = -1;
 	colorStruct * colorFromActor;
+	std::cout << "build rays\n";
 	for (int j = 0; j < sizeY; j++)
 	{
 		for (int i = 0; i < sizeX; i++)
@@ -82,6 +86,7 @@ int main(int argc, char *argv[])
 			picture[j].push_back(castRay);
 		}
 	}
+	std::cout << "start threads\n";
 	MessageQueue inq, outq;
 	ThreadPool P(threads, &inq, &outq);
 	WorkBase * work;
@@ -90,12 +95,15 @@ int main(int argc, char *argv[])
 		work = new  WorkBase(&picture, &actors, &lights, &screen, j, sizeX);
 		inq.push(work);
 	}
+
+
 	for (int j = 0; j < threads; j++)
 	{
 		inq.push(nullptr);
 	}
 	P.joinAll();
 	WorkBase * job;
+	std::cout << "end threads\n";
 	while(!outq.empty())
 	{
 		outq.wait_and_pop(job);
@@ -104,7 +112,9 @@ int main(int argc, char *argv[])
 		{
 			maxValue = job->getMaxColor();
 		}
+		inq.push(job);
 	}
+	std::cout << "set pizels\n";
 	int r, g, b;
 	double expose = 255.0 / double(maxValue);
 	for (int j = 0; j < sizeY; j++)
@@ -114,18 +124,29 @@ int main(int argc, char *argv[])
 			colorStruct * pixelCol = colors[j][i];
 			QColor col = QColor(int(pixelCol->r * expose), int(pixelCol->g  * expose), int(pixelCol->b  * expose));			
 			image.setPixel(i, j, col.rgb());		
-			delete pixelCol;
-			colors[j][i] = 0;
 		}
 	}
 	image.save(QString::fromStdString(pngFileName), "PNG");
+	std::cout << "cleanup\n";
 	delete stage;
 	for (int j = 0; j < sizeY; j++)
 	{
 		for (int i = 0; i < sizeX; i++)
 		{
 			delete picture[j][i];
+			delete colors[j][i];
 		}
+		picture[j].clear();
+		colors[j].clear();
+	}
+	picture.clear();
+	colors.clear();
+	WorkBase * killJob;
+	while (!inq.empty())
+	{
+		inq.wait_and_pop(killJob);
+		//std::cout << "deleteing row " << job->getRow() << std::endl;
+		delete killJob;
 	}
 	return EXIT_SUCCESS;
 }

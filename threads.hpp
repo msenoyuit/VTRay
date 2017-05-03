@@ -20,6 +20,7 @@ class WorkBase
 {
 public:
 	WorkBase(std::vector< std::vector<ray*> > * pic, std::list<objects*> * act, std::list<light*> * lig, plane * scr, int rowIn, int widthIn);
+	~WorkBase();
 	void run();
 	int getRow();
 	double getMaxColor();
@@ -44,6 +45,16 @@ WorkBase::WorkBase(std::vector<std::vector<ray*>> * pic, std::list<objects*> * a
 	screen = scr;
 	row = rowIn;
 	width = widthIn;
+}
+
+inline WorkBase::~WorkBase()
+{
+	for (int i = 0; i < rowColors.size(); i++)
+	{
+		delete rowColors[i];
+	}
+	std::cout << "work dest\n";
+	rowColors.clear();
 }
 
 void WorkBase::run()
