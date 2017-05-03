@@ -53,7 +53,7 @@ inline WorkBase::~WorkBase()
 	{
 		delete rowColors[i];
 	}
-	std::cout << "work dest\n";
+	//std::cout << "work dest\n";
 	rowColors.clear();
 }
 

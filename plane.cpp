@@ -13,7 +13,7 @@ plane::~plane()
 	delete center;
 	delete normal;
 	delete color;
-	std::cout << "plane dest\n";
+	//std::cout << "plane dest\n";
 }
 
 colorStruct * plane::intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen)

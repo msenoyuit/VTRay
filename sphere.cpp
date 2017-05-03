@@ -2,7 +2,7 @@
 
 sphere::sphere(vec * cenIn, double radIn, colorStruct * colIn, double lamIn)
 {
-	std::cout << "sph const\n";
+	//std::cout << "sph const\n";
 	radius = radIn;
 	lambert = lamIn;
 	col = new colorStruct(colIn->r, colIn->g, colIn->b);
@@ -13,7 +13,7 @@ sphere::~sphere()
 {
 	delete col;
 	delete center;
-	std::cout << "sph dest\n";
+	//std::cout << "sph dest\n";
 }
 
 colorStruct * sphere::intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen)

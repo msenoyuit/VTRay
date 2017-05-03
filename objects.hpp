@@ -98,7 +98,7 @@ class objects
 {
 public:
 	objects() {};
-	virtual ~objects() { std::cout << "obj dest\n"; };
+	virtual ~objects() {};
 	virtual colorStruct * intersect(const std::list<objects*> actors, const std::list<light*> lights, const ray traceRay, double dist, objects * screen) = 0;
 	virtual const double intersectTrue(const ray traceRay)  = 0;
 	virtual vec* getCenter() = 0;
